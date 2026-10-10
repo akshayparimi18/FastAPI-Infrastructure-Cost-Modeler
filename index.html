@@ -1,11 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FastAPI Cloud Infrastructure Cost Modeler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        fastapi: {
+                            teal: '#009688',
+                            darkTeal: '#00796b',
+                            lightTeal: '#26a69a',
+                            darkBg: '#121212',
+                            cardBg: '#1e1e1e',
+                            border: '#2d2d2d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <h1>FastAPI Cloud Infrastructure Cost Modeler</h1>
+<body class="bg-[#0b0f19] text-gray-100 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- Main Container -->
+    <div class="max-w-4xl w-full bg-[#111827] border border-gray-800 rounded-xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-[#1f2937] px-6 py-5 border-b border-gray-800 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="h-3 w-3 rounded-full bg-teal-400 animate-pulse"></div>
+                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    FastAPI <span class="text-teal-400">Cloud Cost Modeler</span>
+                </h1>
+            </div>
+            <span class="text-xs uppercase tracking-wider bg-teal-950 text-teal-400 border border-teal-800 px-2.5 py-1 rounded-md font-semibold">Dev Portfolio Tool</span>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 p-6 gap-8">
+            <!-- Left: Inputs -->
+            <div class="space-y-6">
+                <h2 class="text-sm font-semibold tracking-wider text-gray-400 uppercase">Infrastructure Levers</h2>
+                
+                <!-- Slider 1: Peak Concurrent Users -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="peakUsers" class="text-sm font-medium text-gray-200">Peak Concurrent Users</label>
+                        <span id="peakUsersVal" class="text-teal-400 font-mono font-bold text-sm bg-gray-900 px-2 py-0.5 rounded border border-gray-800">500</span>
+                    </div>
+                    <input type="range" id="peakUsers" min="10" max="5000" step="10" value="500" 
+                        class="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-teal-400">
+                </div>
+
+                <!-- Slider 2: AI Inference Ratio -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="inferenceRatio" class="text-sm font-medium text-gray-200">AI Inference Request Ratio</label>
+                        <span id="inferenceRatioVal" class="text-teal-400 font-mono font-bold text-sm bg-gray-900 px-2 py-0.5 rounded border border-gray-800">20%</span>
+                    </div>
+                    <input type="range" id="inferenceRatio" min="0" max="100" step="1" value="20" 
+                        class="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-teal-400">
+                </div>
+
+                <!-- Slider 3: Average Payload Size -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="payloadSize" class="text-sm font-medium text-gray-200">Avg Payload Size (Per Request)</label>
+                        <span id="payloadSizeVal" class="text-teal-400 font-mono font-bold text-sm bg-gray-900 px-2 py-0.5 rounded border border-gray-800">5.0 MB</span>
+                    </div>
+                    <input type="range" id="payloadSize" min="0.1" max="50" step="0.1" value="5.0" 
+                        class="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-teal-400">
+                </div>
+
+                <!-- Dropdown: GPU Architecture -->
+                <div>
+                    <label for="gpuArch" class="block text-sm font-medium text-gray-200 mb-2">GPU Architecture</label>
+                    <select id="gpuArch" class="w-full bg-[#1f2937] border border-gray-700 text-gray-200 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block p-2.5 outline-none">
+                        <option value="serverless">Serverless / Pay-per-use GPU</option>
+                        <option value="always-on">Always-On Dedicated GPU Node</option>
+                    </select>
+                </div>
+
+                <!-- Toggle Switch: Multi-Region High Availability -->
+                <div class="flex items-center justify-between pt-2 border-t border-gray-800">
+                    <div>
+                        <span class="block text-sm font-medium text-gray-200">Multi-Region High Availability</span>
+                        <span class="block text-xs text-gray-400">Duplicates base FastAPI & DB infrastructure</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="multiRegionToggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-500"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Right: Dashboard Output -->
+            <div class="bg-[#161f30] border border-gray-800/80 rounded-xl p-6 flex flex-col justify-between space-y-6">
+                <div>
+                    <h2 class="text-xs font-semibold tracking-wider text-gray-400 uppercase mb-4">Estimated Monthly Cloud Cost</h2>
+                    
+                    <!-- Main Cost Callout -->
+                    <div class="bg-[#111827] border border-teal-500/30 rounded-xl p-5 text-center shadow-inner relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-teal-500/10 rounded-full blur-xl pointer-events-none"></div>
+                        <span id="totalCost" class="text-4xl md:text-5xl font-extrabold text-teal-400 font-mono tracking-tight">$0</span>
+                        <span class="block text-xs text-gray-400 mt-1 uppercase tracking-wider">USD / Month</span>
+                    </div>
+                </div>
+
+                <!-- Breakdown & Progress Bars -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Cost Breakdown</h3>
+                    
+                    <!-- Base API & DB -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-300 font-medium">Base API & Database</span>
+                            <span id="baseCostText" class="font-mono text-gray-200 font-semibold">$0</span>
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+                            <div id="baseBar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- AI Inference Compute -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-300 font-medium">AI Inference Compute</span>
+                            <span id="gpuCostText" class="font-mono text-gray-200 font-semibold">$0</span>
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+                            <div id="gpuBar" class="bg-teal-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Data Egress / Bandwidth -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-300 font-medium">Data Egress & Bandwidth</span>
+                            <span id="egressCostText" class="font-mono text-gray-200 font-semibold">$0</span>
+                        </div>
+                        <div class="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+                            <div id="egressBar" class="bg-purple-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Note -->
+                <div class="text-[11px] text-gray-400 border-t border-gray-800/60 pt-3 flex items-center justify-between">
+                    <span>Calculated dynamically in real-time</span>
+                    <span class="text-teal-400/80 font-mono">FastAPI v0.110+ Ready</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculation Script -->
+    <script>
+        const peakUsersInput = document.getElementById('peakUsers');
+        const peakUsersVal = document.getElementById('peakUsersVal');
+        
+        const inferenceRatioInput = document.getElementById('inferenceRatio');
+        const inferenceRatioVal = document.getElementById('inferenceRatioVal');
+        
+        const payloadSizeInput = document.getElementById('payloadSize');
+        const payloadSizeVal = document.getElementById('payloadSizeVal');
+        
+        const gpuArchSelect = document.getElementById('gpuArch');
+        const multiRegionToggle = document.getElementById('multiRegionToggle');
+        
+        const totalCostEl = document.getElementById('totalCost');
+        const baseCostText = document.getElementById('baseCostText');
+        const gpuCostText = document.getElementById('gpuCostText');
+        const egressCostText = document.getElementById('egressCostText');
+        
+        const baseBar = document.getElementById('baseBar');
+        const gpuBar = document.getElementById('gpuBar');
+        const egressBar = document.getElementById('egressBar');
+
+        function calculateCosts() {
+            const peakUsers = parseFloat(peakUsersInput.value);
+            const inferenceRatio = parseFloat(inferenceRatioInput.value) / 100;
+            const payloadSize = parseFloat(payloadSizeInput.value);
+            const gpuArch = gpuArchSelect.value;
+            const isMultiRegion = multiRegionToggle.checked;
+
+            // Update UI badges
+            peakUsersVal.textContent = peakUsers.toLocaleString();
+            inferenceRatioVal.textContent = Math.round(inferenceRatio * 100) + '%';
+            payloadSizeVal.textContent = payloadSize.toFixed(1) + ' MB';
+
+            // Cost Model Logic
+            let baseCost = peakUsers * 0.15; 
+            if (isMultiRegion) {
+                baseCost *= 2; // Multi-region high availability doubles base cost
+            }
+
+            let gpuCost = 0;
+            const totalEstimatedRequests = peakUsers * 120; 
+            const inferenceRequests = totalEstimatedRequests * inferenceRatio;
+            
+            if (gpuArch === 'always-on') {
+                gpuCost = 380; // Fixed node cost
+            } else {
+                gpuCost = inferenceRequests * 0.012; // Serverless per-request GPU cost
+            }
+
+            const totalDataGB = (totalEstimatedRequests * payloadSize) / 1024;
+            const egressCost = totalDataGB * 0.09;
+
+            const totalCost = baseCost + gpuCost + egressCost;
+
+            // Update text displays
+            totalCostEl.textContent = '$' + Math.round(totalCost).toLocaleString();
+            baseCostText.textContent = '$' + Math.round(baseCost).toLocaleString();
+            gpuCostText.textContent = '$' + Math.round(gpuCost).toLocaleString();
+            egressCostText.textContent = '$' + Math.round(egressCost).toLocaleString();
+
+            // Update progress bar widths relative to total
+            const maxScale = Math.max(totalCost, 1);
+            baseBar.style.width = Math.min(100, (baseCost / maxScale) * 100) + '%';
+            gpuBar.style.width = Math.min(100, (gpuCost / maxScale) * 100) + '%';
+            egressBar.style.width = Math.min(100, (egressCost / maxScale) * 100) + '%';
+        }
+
+        // Event Listeners
+        peakUsersInput.addEventListener('input', calculateCosts);
+        inferenceRatioInput.addEventListener('input', calculateCosts);
+        payloadSizeInput.addEventListener('input', calculateCosts);
+        gpuArchSelect.addEventListener('change', calculateCosts);
+        multiRegionToggle.addEventListener('change', calculateCosts);
+
+        // Initial run
+        calculateCosts();
+    </script>
 </body>
 </html>
