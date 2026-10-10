@@ -2,7 +2,7 @@
 
 An interactive, real-time cloud cost modeling dashboard built to estimate infrastructure expenses for high-concurrency **FastAPI** backend applications handling heavy machine learning and computer vision workloads.
 
-![FastAPI Cost Modeler Dashboard Preview](image_e9c879.jpg)
+![FastAPI Cost Modeler Dashboard Preview](FastAPI%20Infrastructure%20Cost%20Modeler.png)
 
 ## 🚀 Overview
 
